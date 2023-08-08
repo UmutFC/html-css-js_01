@@ -20,11 +20,15 @@ function showError(input, message) {
 }
 
 // Check email is valid
-function isValidMail(email) {
+function checkEmail(input) {
   const re =
-    /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-  return re.test(String(email).toLowerCase());
+  if (re.test(input.value)) {
+    showSuccess(input);
+  } else {
+    showError(input, "Email is not valid");
+  }
 }
 
 // Event Listeners
@@ -37,27 +41,77 @@ form.addEventListener("submit", function (e) {
   // so we want to submit value
   console.log(username.value);
 
-  if (username.value === "") {
-    showError(username, "Username is required");
-  } else {
-    showSuccess(username);
-  }
+  // if (username.value === "") {
+  //   showError(username, "Username is required");
+  // } else {
+  //   showSuccess(username);
+  // }
 
-  if (email.value === "") {
-    showError(email, "E-mail is required");
-  } else if (!isValidMail(email)) {
-    showError(email, "E-mail is not valid");
-  } else {
-    showSuccess(email);
-  }
-  if (password.value === "") {
-    showError(password, "Password is required");
-  } else {
-    showSuccess(password);
-  }
-  if (password2.value === "") {
-    showError(password2, "Password 2 is required");
-  } else {
-    showSuccess(password2);
-  }
+  // if (email.value === "") {
+  //   showError(email, "E-mail is required");
+  // } else if (!isValidMail(email)) {
+  //   showError(email, "E-mail is not valid");
+  // } else {
+  //   showSuccess(email);
+  // }
+  // if (password.value === "") {
+  //   showError(password, "Password is required");
+  // } else {
+  //   showSuccess(password);
+  // }
+  // if (password2.value === "") {
+  //   showError(password2, "Password 2 is required");
+  // } else {
+  //   showSuccess(password2);
+  // }
+
+  checkRequired([username, email, password, password2]);
+  checkLength(username, 3, 15);
+  checkLength(password, 6, 20);
+  checkEmail(email);
+  checkPasswordsMatch(password, password2);
 });
+
+// Check Passwords Match
+function checkPasswordsMatch(input1, input2) {
+  if (input1.value !== input2.value) {
+    showError(input2, "Passwords does not match");
+  }
+}
+
+// Check Input Length
+function checkLength(input, min, max) {
+  if (input.value.length < min) {
+    showError(
+      input,
+      `${getFieldName(input)} must be at least ${min} characters`
+    );
+  } else if (input.value.length > max) {
+    showError(
+      input,
+      `${getFieldName(input)} must be less than ${max} characters`
+    );
+  } else {
+    showSuccess(input);
+  }
+}
+
+// Check Required Fields
+function checkRequired(inputArr) {
+  inputArr.forEach(function (input) {
+    if (input.value.trim() === "") {
+      showError(input, `${getFieldName(input)} is required`);
+      if (input.id === "password2") {
+        showError(input, "Please confirm your password");
+      }
+    } else {
+      showSuccess(input);
+    }
+  });
+}
+
+// Get Field Name
+function getFieldName(input) {
+  const val = input.id.charAt(0).toUpperCase() + input.id.slice(1);
+  return val;
+}
